@@ -80,6 +80,8 @@ static void processXEvents(MyWin *win, Atom wm_protocols, Atom wm_delete_window 
         	  win->OnKeyboard( symbol, chr, event.xkey.x, event.xkey.y, setting_change );
           break;
         }
+    	case ButtonPress:
+   	case ButtonRelease:
     	case MotionNotify:
             if (win->OnMouse != NULL)
             	win->OnMouse( event.xmotion.x, event.xmotion.y, event.xmotion.state );
@@ -181,6 +183,11 @@ MyWin *WinGL_create(int x, int y, int width, int height)
 
 	win.glc = glXCreateContext(win.dpy, win.xvi, NULL, GL_TRUE);
 	glXMakeCurrent(win.dpy, win.win, win.glc);
+
+    glPolygonMode (GL_FRONT_AND_BACK, GL_FILL); // Polygon rasterization mode (polygon filled)
+
+    glEnable(GL_TEXTURE_2D); // This Enable the Texture mapping
+
 
 	check( "createWindow()" );
 	printf( "Window Size    = %d x %d\n", win.width, win.height );

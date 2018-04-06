@@ -16,11 +16,22 @@ configure_file (
   
 find_package(OpenGL)
 find_package(X11)
-
+include(FindFreetype)
+include_directories(${FREETYPE_INCLUDE_DIRS})
 #--------------------------------------------------------------
 #               Source files
 #--------------------------------------------------------------
-add_executable(PhotoSphereBwr wingl.c main.c )
+#add_executable(PhotoSphereBwr main.c wingl.c  bmp.c fonts.c mat_vect.c mat_matr.c 3ds.c)
+add_executable(PhotoSphereBwr   main.c 
+                                wingl.c
+                                bmp.c
+                                3ds.c
+                                font_truetype/src/draw.c
+                                font_truetype/src/drawgl.c
+                                font_truetype/src/drawrast.c
+                                font_truetype/src/font.c
+                                font_truetype/src/tpool.c
+                                font_truetype/src/utf8.c)
 
 #--------------------------------------------------------------
 #               Include directories
@@ -33,7 +44,7 @@ include_directories(
 #               Libraries used
 #--------------------------------------------------------------
 ## foreach(_LIB X11 Xext Xcursor Xinerama Xi Xrandr Xrender Xss Xxf86vm)
-foreach(_LIB Xext GL GLU X11 Xext )
+foreach(_LIB Xext GL GLU m X11 freetype)
    string(TOUPPER ${_LIB} _LNAME)
    find_library(${_LNAME}_LIB ${_LIB})
    if(${_LNAME}_LIB)
