@@ -15,3 +15,7 @@ Release*
 *.glyphmap
 usr/
 Makefile
+*.log
+*.cmake
+*.bin
+CMakeFiles/
