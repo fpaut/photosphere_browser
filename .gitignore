@@ -9,6 +9,7 @@ lib*.so.*
 Debug*
 Release*
 .vs/
+*.xml
 *.zip
 *.exe
 *.dll

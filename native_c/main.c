@@ -25,7 +25,7 @@
  
 const int   WIN_XPOS    = 0;
 const int   WIN_YPOS    = 0;
-const int   WIN_XRES    = 641;
+const int   WIN_XRES    = 640;
 const int   WIN_YRES    = 480;
 
 //----------------------------------------------------------------------------
@@ -46,7 +46,10 @@ typedef struct Camera
 //----------------------------------------------------------------------------
  
 MyWin        *Win;
-Camera       MyCam = {00.0, 0.0, 10.0, 0.0, -0.0, 0.0, 0.0, 1.0, 0.0};
+// Camera       MyCam = {-30.0, 0.0, -10.0, 0.0, -0.0, 0.0, 0.0, 1.0, 0.0};
+Camera       MyCam = {-0.0, -0.0, 80.0, 0.0, -0.0, 0.0, 0.0, 1.0, 0.0};
+float       CameraStep = 5.0;
+
 
 // 3DS Obj3ds
 obj_3ds Obj3ds;
@@ -77,15 +80,13 @@ void gl_printf(float x, float y, const char *fmt, ...)
 	vsnprintf(buf, buf_size + 1, fmt, ap);
 	va_end(ap);
 
-	glMatrixMode(GL_MODELVIEW);
-	glLoadIdentity();
  	glPushMatrix();
         {
             static float rot = 0;
             
 //            rot +=1;  printf("rot = %f\n", rot);
 //            glRotatef(rot, 1, 0, 0);
-            glRotatef(90, 0, 1, 0);
+//            glRotatef(90, 0, 1, 0);
 
             glTranslatef(x, y, 0);
             glColor3f(1, 1, 1);
@@ -101,66 +102,42 @@ void gl_printf(float x, float y, const char *fmt, ...)
 
 void displayCB(void)
 {
-    static float rot =0;
+/* ADDED */
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 //	glLoadIdentity();
-    gluLookAt(MyCam.eyeX, MyCam.eyeY, MyCam.eyeZ, MyCam.centerX, MyCam.centerY, MyCam.centerZ, MyCam.upX, MyCam.upY, MyCam.upZ);
-//    printf("LookAt eye position X %f,Y %f,Z %f\n,eye look X %f, Y %f, Z %f\n\n"	, MyCam.eyeX, MyCam.eyeY, MyCam.eyeZ
-//                                                                                , MyCam.centerX, MyCam.centerY, MyCam.centerZ);
-	glColor3f(0.0, 1.0, 0.0);
+  
 
-  	drawaxes();
-        
-        glPolygonMode (GL_FRONT_AND_BACK, GL_LINE); // Polygon rasterization mode (polygon outlined)
-//        quad();
+/* gluLookAt(30, -0, 20, 0, 0, 0, 0, 1, 0);*/
+   gluLookAt(MyCam.eyeX, MyCam.eyeY, MyCam.eyeZ, 0, 0, 0, 0, 1, 0);
+ 	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
 
-        
-        gl_printf(0, 1, "TEST");
-
-
-	glXSwapBuffers( Win->dpy, Win->win );
+      drawaxes();
+      gl_printf(0, 10, "TEST2");
+	glPushMatrix();
+	glTranslatef(0, -10, 0);
+//	glColor3f(1, 1, 1);
+	/* XXX call dtx_string to draw utf-8 text.
+	 * any transformations and the current color apply
+	 */
+	dtx_string("TEST");
+  	glPopMatrix();
+ 	glXSwapBuffers( Win->dpy, Win->win );
 }
 
 void reshapeCB(int width, int height)
 {
-    glViewport(0, 0, width, height);
+    Win->width = width;
+    Win->height = height;
+
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-//    glOrtho(-4, 4, -0.5, 4, -10, 1000.0);
-    gluPerspective(45.0, width/height, 0.1, 100.0);
-    glMatrixMode(GL_MODELVIEW);
-    glLoadIdentity();
-    glOrtho(-width/2, width/2, -height/2, height/2, -1, 1);
+    gluPerspective(45.0, width/height, 0.1, 1000.0);
+
+    displayCB();
 }
 
-//----------------------------------------------------------------------------
-
-static void mouseCB	( int x/* pointer x coordinates in event window */
-					, int y/* pointer y coordinates in event window */
-					, unsigned int state /* key or button mask */)
-{
-    if (state & Button1Mask)
-    {
-        printf("Button1 !");
-    }
-    if (state & Button2Mask)
-    {
-        printf("Button2 !");
-    }
-    if (state & Button3Mask)
-    {
-        printf("Button3 !");
-    }
-//	printf("MOUSE x %d, y %d, state %d\n", x, y, state);
-//	MyCam.eyeX = x; printf("MyCam.eyeX %f\t", MyCam.eyeX);
-//	MyCam.eyeY = x; printf("MyCam.eyeY %f\t", MyCam.eyeY);
-//	MyCam.eyeZ = x; printf("MyCam.eyeZ %f\t", MyCam.eyeZ);
-//	MyCam.centerX = -x/10; printf("MyCam.centerX %f\t", MyCam.centerX);
-//	MyCam.centerY = x/10; printf("MyCam.centerY %f\t", MyCam.centerY);
-//	MyCam.centerZ = x/10; printf("MyCam.centerZ %f\t", MyCam.centerZ);
-	printf("\n");
-}
 //----------------------------------------------------------------------------
 
 
@@ -189,43 +166,75 @@ GLXContext context = NULL;
 
 //----------------------------------------------------------------------------
 
+static void mouseCB	( int x/* pointer x coordinates in event window */
+					, int y/* pointer y coordinates in event window */
+					, unsigned int state /* key or button mask */)
+{
+    if (state & Button1Mask)
+    {
+                /* No button pressed */
+                MyCam.eyeZ = (Win->height / 2) - y;
+    } else
+    {
+        if (state & Button2Mask)
+        {
+            printf("Button2 !");
+        } else
+        {
+            if (state & Button3Mask)
+            {
+                printf("Button3 !");
+                printf("MyCam.eyeX %f\t", MyCam.eyeX);
+                printf("MyCam.eyeY %f\t", MyCam.eyeY);
+                printf("MyCam.eyeZ %f\t", MyCam.eyeZ);
+                printf("MyCam.centerX %f\t", MyCam.centerX);
+                printf("MyCam.centerY %f\t", MyCam.centerY);
+                printf("MyCam.centerZ %f\t", MyCam.centerZ);
+                printf("\n");
+            } else
+            {
+            }  
+        }
+    }
+        // Update view
+        reshapeCB(Win->width, Win->height);
+}
+//----------------------------------------------------------------------------
+
 static void keyboardCB( KeySym sym, unsigned char key, int x, int y,
                  short setting_change )
 {
-	float step = 5.0;
-
 	switch ( tolower( key ) )
 	{
-	case 'k':
-	  printf( "You hit the 'k' key\n" );
-	  break;
+            case 'k':
+                printf( "You hit the 'k' key\n" );
+            break;
 
-	default:
-		switch ( sym )
+            default:
+                switch ( sym )
 		{
-			case XK_Escape:
-				// ESCape - We're done!
-				exit (0);
-			break;
-			case XK_Left  :
-				MyCam.eyeX -= step;
-				printf( "CameraX = %f\n", MyCam.eyeX );
-			break;
-			case XK_Right :
-				MyCam.eyeX += step;
-				printf( "CameraX = %f\n", MyCam.eyeX );
-			break;
-			case XK_Up  :
-				MyCam.eyeY += step;
-				printf( "CameraY = %f\n", MyCam.eyeY );
-			break;
-			case XK_Down  :
-				MyCam.eyeY -= step;
-				printf( "CameraY = %f\n", MyCam.eyeY );
-			break;
-	  }
-	  break;
+                    case XK_Escape:
+                        // ESCape - We're done!
+			exit (0);
+                    break;
+                    case XK_Left  :
+			MyCam.eyeX -= CameraStep;
+                    break;
+                    case XK_Right :
+			MyCam.eyeX += CameraStep;
+                    break;
+                    case XK_Up  :
+                    	MyCam.eyeY += CameraStep;
+                    break;
+                    case XK_Down  :
+                        MyCam.eyeY -= CameraStep;
+                    break;
+                }
+            break;
 	}
+        
+        // Update view
+        reshapeCB(Win->width, Win->height);
 }
  
 //----------------------------------------------------------------------------
@@ -245,18 +254,18 @@ int main( int argc, char *argv[] )
   WinGL_setOnKeyboardCB(Win, keyboardCB);
   WinGL_setOnMouseCB(Win, mouseCB);
 
-  Load3DS (&Obj3ds,"./spaceship.3ds");
-  Obj3ds.id_texture=LoadBMP("./spaceshiptexture.bmp"); // The Function LoadBitmap() return the current texture ID
-  // If the last function returns -1 it means the file was not found so we exit from the program
-  if (Obj3ds.id_texture==-1)
-  {
-  	printf("Image file: spaceshiptexture.bmp not found\n");
-      //MessageBox(NULL,"Image file: spaceshiptexture.bmp not found", "Zetadeck",MB_OK | MB_ICONERROR);
-      exit (0);
-  }
+//  Load3DS (&Obj3ds,"./spaceship.3ds");
+//  Obj3ds.id_texture=LoadBMP("./spaceshiptexture.bmp"); // The Function LoadBitmap() return the current texture ID
+//  // If the last function returns -1 it means the file was not found so we exit from the program
+//  if (Obj3ds.id_texture==-1)
+//  {
+//  	printf("Image file: spaceshiptexture.bmp not found\n");
+//      //MessageBox(NULL,"Image file: spaceshiptexture.bmp not found", "Zetadeck",MB_OK | MB_ICONERROR);
+//      exit (0);
+//  }
 
   	/* XXX dtx_open_font opens a font file and returns a pointer to dtx_font */
-	if(!(font = dtx_open_font("serif.ttf", 24))) {
+	if(!(font = dtx_open_font("Sweet Hipster.ttf", 24))) {
 		fprintf(stderr, "failed to open font\n");
 		return 1;
 	}
