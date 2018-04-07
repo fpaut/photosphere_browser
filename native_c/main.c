@@ -13,9 +13,11 @@
 #include <string.h>
 #include <ctype.h>
 #include <math.h>
+#include <stdarg.h>
 #include "3ds.h"
 #include "bmp.h"
-#include "wingl.h"
+#include "glwin.h"
+#include "glmodels.h"
 #include "font_truetype/src/drawtext.h"
 
  
@@ -44,8 +46,7 @@ typedef struct Camera
 //----------------------------------------------------------------------------
  
 MyWin        *Win;
-//Camera       MyCam = {100.0, 300.0, 30.0, 0.0, 0.0, 0.0, 1.0, 1.0, 0.0};
-Camera       MyCam = {-1.0, -1.0, -1.0, 0.0, -0.0, 0.0, 0.0, 0.0, 1.0};
+Camera       MyCam = {00.0, 0.0, 10.0, 0.0, -0.0, 0.0, 0.0, 1.0, 0.0};
 
 // 3DS Obj3ds
 obj_3ds Obj3ds;
@@ -57,263 +58,64 @@ struct dtx_font *font;
 //----------------------------------------------------------------------------
 
  
-void redraw()
+void gl_printf(float x, float y, const char *fmt, ...)
 {
+	va_list ap;
+	int buf_size;
+	char *buf, tmp;
 
-//	static float r = 0.0;
-//
-//	    glRotated(r,0,0,1);
-//	    glRotated(r,0,1,0);
-//	    glRotated(r,1,0,0);
-//	    r = r + 1.0;
-//        printf("\n\r=%f\n\n", r);
+	va_start(ap, fmt);
+	buf_size = vsnprintf(&tmp, 0, fmt, ap);
+	va_end(ap);
 
-	    glBegin(GL_QUADS);                // Begin drawing the color cube with 6 quads
-	      // Top face (y = 1.0f)
-	      // Define vertices in counter-clockwise (CCW) order with normal pointing out
-	      glColor3f(0.0f, 1.0f, 0.0f);     // Green
-	      glVertex3f( 1.0f, 1.0f, -1.0f);
-	      glVertex3f(-1.0f, 1.0f, -1.0f);
-	      glVertex3f(-1.0f, 1.0f,  1.0f);
-	      glVertex3f( 1.0f, 1.0f,  1.0f);
+	if(buf_size == -1) {
+		buf_size = 512;
+	}
 
-	      // Bottom face (y = -1.0f)
-	      glColor3f(1.0f, 0.5f, 0.0f);     // Orange
-	      glVertex3f( 1.0f, -1.0f,  1.0f);
-	      glVertex3f(-1.0f, -1.0f,  1.0f);
-	      glVertex3f(-1.0f, -1.0f, -1.0f);
-	      glVertex3f( 1.0f, -1.0f, -1.0f);
+	buf = alloca(buf_size + 1);
+	va_start(ap, fmt);
+	vsnprintf(buf, buf_size + 1, fmt, ap);
+	va_end(ap);
 
-	      // Front face  (z = 1.0f)
-	      glColor3f(1.0f, 0.0f, 0.0f);     // Red
-	      glVertex3f( 1.0f,  1.0f, 1.0f);
-	      glVertex3f(-1.0f,  1.0f, 1.0f);
-	      glVertex3f(-1.0f, -1.0f, 1.0f);
-	      glVertex3f( 1.0f, -1.0f, 1.0f);
+	glMatrixMode(GL_MODELVIEW);
+	glLoadIdentity();
+ 	glPushMatrix();
+        {
+            static float rot = 0;
+            
+//            rot +=1;  printf("rot = %f\n", rot);
+//            glRotatef(rot, 1, 0, 0);
+            glRotatef(90, 0, 1, 0);
 
-	      // Back face (z = -1.0f)
-	      glColor3f(1.0f, 1.0f, 0.0f);     // Yellow
-	      glVertex3f( 1.0f, -1.0f, -1.0f);
-	      glVertex3f(-1.0f, -1.0f, -1.0f);
-	      glVertex3f(-1.0f,  1.0f, -1.0f);
-	      glVertex3f( 1.0f,  1.0f, -1.0f);
-
-	      // Left face (x = -1.0f)
-	      glColor3f(0.0f, 0.0f, 1.0f);     // Blue
-	      glVertex3f(-1.0f,  1.0f,  1.0f);
-	      glVertex3f(-1.0f,  1.0f, -1.0f);
-	      glVertex3f(-1.0f, -1.0f, -1.0f);
-	      glVertex3f(-1.0f, -1.0f,  1.0f);
-
-	      // Right face (x = 1.0f)
-	      glColor3f(1.0f, 0.0f, 1.0f);     // Magenta
-	      glVertex3f(1.0f,  1.0f, -1.0f);
-	      glVertex3f(1.0f,  1.0f,  1.0f);
-	      glVertex3f(1.0f, -1.0f,  1.0f);
-	      glVertex3f(1.0f, -1.0f, -1.0f);
-	   glEnd();  // End of drawing color-cube
-
-	   // Render a pyramid consists of 4 triangles
-//	   glLoadIdentity();                  // Reset the model-view matrix
-	   glTranslatef(-1.5f, 0.0f, -6.0f);  // Move left and into the screen
-
-	   glBegin(GL_TRIANGLES);           // Begin drawing the pyramid with 4 triangles
-	      // Front
-	      glColor3f(1.0f, 0.0f, 0.0f);     // Red
-	      glVertex3f( 0.0f, 1.0f, 0.0f);
-	      glColor3f(0.0f, 1.0f, 0.0f);     // Green
-	      glVertex3f(-1.0f, -1.0f, 1.0f);
-	      glColor3f(0.0f, 0.0f, 1.0f);     // Blue
-	      glVertex3f(1.0f, -1.0f, 1.0f);
-
-	      // Right
-	      glColor3f(1.0f, 0.0f, 0.0f);     // Red
-	      glVertex3f(0.0f, 1.0f, 0.0f);
-	      glColor3f(0.0f, 0.0f, 1.0f);     // Blue
-	      glVertex3f(1.0f, -1.0f, 1.0f);
-	      glColor3f(0.0f, 1.0f, 0.0f);     // Green
-	      glVertex3f(1.0f, -1.0f, -1.0f);
-
-	      // Back
-	      glColor3f(1.0f, 0.0f, 0.0f);     // Red
-	      glVertex3f(0.0f, 1.0f, 0.0f);
-	      glColor3f(0.0f, 1.0f, 0.0f);     // Green
-	      glVertex3f(1.0f, -1.0f, -1.0f);
-	      glColor3f(0.0f, 0.0f, 1.0f);     // Blue
-	      glVertex3f(-1.0f, -1.0f, -1.0f);
-
-	      // Left
-	      glColor3f(1.0f,0.0f,0.0f);       // Red
-	      glVertex3f( 0.0f, 1.0f, 0.0f);
-	      glColor3f(0.0f,0.0f,1.0f);       // Blue
-	      glVertex3f(-1.0f,-1.0f,-1.0f);
-	      glColor3f(0.0f,1.0f,0.0f);       // Green
-	      glVertex3f(-1.0f,-1.0f, 1.0f);
-	   glEnd();   // Done drawing the pyramid
+            glTranslatef(x, y, 0);
+            glColor3f(1, 1, 1);
+            /* XXX call dtx_string to draw utf-8 text.
+             * any transformations and the current color apply
+             */
+            dtx_string(buf);
+        }
+	glPopMatrix();
 }
 
-//static void draw3DRectangle(double dMinX_kls, double dMaxX_kls, double dMinY_kls, double dMaxY_kls, double dMinZ_kls, double dMaxZ_kls)
-//{ // werkt goed!!
-//
-//  double MinX = fabs(dMinX_kls);
-//  double MaxX = fabs(dMaxX_kls);
-//  double MinY = fabs(dMinY_kls);
-//  double MaxY = fabs(dMaxY_kls);
-//  double MinZ = fabs(dMinZ_kls);
-//  double MaxZ = fabs(dMaxZ_kls);
-//
-//  double sizeX = fabs( fabs(dMaxX_kls)-fabs(dMinX_kls) );
-//  double sizeY = fabs( fabs(dMaxY_kls)-fabs(dMinY_kls) );
-//  double sizeZ = fabs( fabs(dMaxZ_kls)-fabs(dMinZ_kls) );
-//
-//  GLdouble V0[] = { 0.0, 0.0, 0.0};
-//  GLdouble V1[] = { sizeX, 0.0, 0.0};
-//  GLdouble V2[] = { sizeX, sizeY, 0.0};
-//  GLdouble V3[] = { 0.0, sizeY, 0.0};
-//  GLdouble V4[] = { 0.0, 0.0, sizeZ};
-//  GLdouble V5[] = { sizeX, 0.0, sizeZ};
-//  GLdouble V6[] = { sizeX, sizeY, sizeZ};
-//  GLdouble V7[] = { 0.0, sizeY, sizeZ};
-//
-//  glPushMatrix();
-//  glTranslatef(dMinX_kls, dMinY_kls, dMinZ_kls);
-//
-//  glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
-//
-//  glBegin(GL_QUADS);
-//	glVertex3dv(V0); glVertex3dv(V1); glVertex3dv(V2); glVertex3dv(V3);        // Surface 1
-//	glVertex3dv(V1); glVertex3dv(V5); glVertex3dv(V6); glVertex3dv(V2);        // Surface 2
-//	glVertex3dv(V5); glVertex3dv(V4); glVertex3dv(V7); glVertex3dv(V6);        // Surface 3
-//	glVertex3dv(V4); glVertex3dv(V0); glVertex3dv(V3); glVertex3dv(V7);        // Surface 4
-//	glVertex3dv(V3); glVertex3dv(V2); glVertex3dv(V6); glVertex3dv(V7);        // Surface 5
-//	glVertex3dv(V0); glVertex3dv(V4); glVertex3dv(V5); glVertex3dv(V1);        // Surface 6
-//  glEnd();
-//
-//  glPopMatrix();
-//
-//}
-//
-//----------------------------------------------------------------------------
-
-void display3DSobj(obj_3ds_ptr pObj3ds)
-{
-    int l_index;
 
 
-    glBindTexture(GL_TEXTURE_2D, pObj3ds->id_texture); // We set the active texture
-
-    glBegin(GL_TRIANGLES); // glBegin and glEnd delimit the vertices that define a primitive (in our case triangles)
-    for (l_index=0;l_index<pObj3ds->polygons_qty;l_index++)
-    {
-        //----------------- FIRST VERTEX -----------------
-        // Texture coordinates of the first vertex
-        glTexCoord2f( pObj3ds->mapcoord[ pObj3ds->polygon[l_index].a ].u,
-                      pObj3ds->mapcoord[ pObj3ds->polygon[l_index].a ].v);
-        // Coordinates of the first vertex
-        glVertex3f( pObj3ds->vertex[ pObj3ds->polygon[l_index].a ].x,
-                    pObj3ds->vertex[ pObj3ds->polygon[l_index].a ].y,
-                    pObj3ds->vertex[ pObj3ds->polygon[l_index].a ].z); //Vertex definition
-
-        //----------------- SECOND VERTEX -----------------
-        // Texture coordinates of the second vertex
-        glTexCoord2f( pObj3ds->mapcoord[ pObj3ds->polygon[l_index].b ].u,
-                      pObj3ds->mapcoord[ pObj3ds->polygon[l_index].b ].v);
-        // Coordinates of the second vertex
-        glVertex3f( pObj3ds->vertex[ pObj3ds->polygon[l_index].b ].x,
-                    pObj3ds->vertex[ pObj3ds->polygon[l_index].b ].y,
-                    pObj3ds->vertex[ pObj3ds->polygon[l_index].b ].z);
-
-        //----------------- THIRD VERTEX -----------------
-        // Texture coordinates of the third vertex
-        glTexCoord2f( pObj3ds->mapcoord[ pObj3ds->polygon[l_index].c ].u,
-                      pObj3ds->mapcoord[ pObj3ds->polygon[l_index].c ].v);
-        // Coordinates of the Third vertex
-        glVertex3f( pObj3ds->vertex[ pObj3ds->polygon[l_index].c ].x,
-                    pObj3ds->vertex[ pObj3ds->polygon[l_index].c ].y,
-                    pObj3ds->vertex[ pObj3ds->polygon[l_index].c ].z);
-    }
-    glEnd();
-
-    glFlush(); // This force the execution of OpenGL commands
-}
-
-void drawaxes(void)
-{
-    // X
-    glColor3ub(255, 0, 0);
-    glBegin(GL_LINE_STRIP);
-    glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(1.0, 0.0, 0.0);
-    glVertex3f(0.75, 0.25, 0.0);
-    glVertex3f(0.75, -0.25, 0.0);
-    glVertex3f(1.0, 0.0, 0.0);
-    glVertex3f(0.75, 0.0, 0.25);
-    glVertex3f(0.75, 0.0, -0.25);
-    glVertex3f(1.0, 0.0, 0.0);
-    glEnd();
-    // Y
-    glColor3ub(0, 255, 0);
-    glBegin(GL_LINE_STRIP);
-    glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(0.0, 1.0, 0.0);
-    glVertex3f(0.0, 0.75, 0.25);
-    glVertex3f(0.0, 0.75, -0.25);
-    glVertex3f(0.0, 1.0, 0.0);
-    glVertex3f(0.25, 0.75, 0.0);
-    glVertex3f(-0.25, 0.75, 0.0);
-    glVertex3f(0.0, 1.0, 0.0);
-    glEnd();
-    // Z
-    glColor3ub(0, 0, 255);
-    glBegin(GL_LINE_STRIP);
-    glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(0.0, 0.0, 1.0);
-    glVertex3f(0.25, 0.0, 0.75);
-    glVertex3f(-0.25, 0.0, 0.75);
-    glVertex3f(0.0, 0.0, 1.0);
-    glVertex3f(0.0, 0.25, 0.75);
-    glVertex3f(0.0, -0.25, 0.75);
-    glVertex3f(0.0, 0.0, 1.0);
-    glEnd();
-
-//    glColor3ub(255, 255, 0);
-//    glRasterPos3f(1.1, 0.0, 0.0);
-////    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, 'x');
-//    glRasterPos3f(0.0, 1.1, 0.0);
-////    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, 'y');
-//    glRasterPos3f(0.0, 0.0, 1.1);
-////    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, 'z');
-}
- 
 void displayCB(void)
 {
     static float rot =0;
 	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	glLoadIdentity();
+//	glLoadIdentity();
     gluLookAt(MyCam.eyeX, MyCam.eyeY, MyCam.eyeZ, MyCam.centerX, MyCam.centerY, MyCam.centerZ, MyCam.upX, MyCam.upY, MyCam.upZ);
 //    printf("LookAt eye position X %f,Y %f,Z %f\n,eye look X %f, Y %f, Z %f\n\n"	, MyCam.eyeX, MyCam.eyeY, MyCam.eyeZ
 //                                                                                , MyCam.centerX, MyCam.centerY, MyCam.centerZ);
 	glColor3f(0.0, 1.0, 0.0);
 
   	drawaxes();
-      glPolygonMode (GL_FRONT_AND_BACK, GL_LINE); // Polygon rasterization mode (polygon outlined)
+        
+        glPolygonMode (GL_FRONT_AND_BACK, GL_LINE); // Polygon rasterization mode (polygon outlined)
+//        quad();
 
         
-	glMatrixMode(GL_MODELVIEW);
- 	glPushMatrix();
-        rot +=1;  printf("rot = %f\n", rot);
-        glRotatef(rot, 1, 0, 0);
-        
-	glTranslatef(-200, 1, 0);
-//	drawaxes();
- 	glColor3f(1, 1, 1);
-	/* XXX call dtx_string to draw utf-8 text.
-	 * any transformations and the current color apply
-	 */
-	dtx_string("TEST");
-	glPopMatrix();
-
-//        display3DSobj(&Obj3ds);
+        gl_printf(0, 1, "TEST");
 
 
 	glXSwapBuffers( Win->dpy, Win->win );
@@ -325,11 +127,11 @@ void reshapeCB(int width, int height)
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
 
-    glOrtho(-4, 4, -0.5, 4, -10, 1000.0);
-    gluPerspective(60.0, width/height, 0.1, 10.0);
+//    glOrtho(-4, 4, -0.5, 4, -10, 1000.0);
+    gluPerspective(45.0, width/height, 0.1, 100.0);
     glMatrixMode(GL_MODELVIEW);
-    glEnable(GL_DEPTH_TEST);
-    displayCB();
+    glLoadIdentity();
+    glOrtho(-width/2, width/2, -height/2, height/2, -1, 1);
 }
 
 //----------------------------------------------------------------------------

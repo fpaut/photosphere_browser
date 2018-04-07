@@ -22,6 +22,8 @@ just run: make and you are done.
 of course you may need to change the makefile
 */
 
+#ifndef _3DS_H
+#define _3DS_H
 
 /**********************************************************
  *
@@ -80,6 +82,15 @@ extern int num_texture;
  * multi objects, materials, lights and so on, you must insert other chunk parsers.
  *
  *********************************************************/
-
 extern char Load3DS (obj_3ds_ptr pObj3ds, char *filename);
 
+/**********************************************************
+ *
+ * FUNCTION display3DSobj(obj_3ds_ptr pObj3ds)
+ *
+ * This function display a 3DS object
+ *
+ *********************************************************/
+void display3DSobj(obj_3ds_ptr pObj3ds);
+
+#endif // _3DS_H

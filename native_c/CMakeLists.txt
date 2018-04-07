@@ -23,7 +23,8 @@ include_directories(${FREETYPE_INCLUDE_DIRS})
 #--------------------------------------------------------------
 #add_executable(PhotoSphereBwr main.c wingl.c  bmp.c fonts.c mat_vect.c mat_matr.c 3ds.c)
 add_executable(PhotoSphereBwr   main.c 
-                                wingl.c
+                                glmodels.c
+                                glwin.c
                                 bmp.c
                                 3ds.c
                                 font_truetype/src/draw.c

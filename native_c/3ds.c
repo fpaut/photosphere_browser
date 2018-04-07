@@ -25,6 +25,7 @@ of course you may need to change the makefile
 
 #include <stdio.h>
 #include <stdlib.h>
+#include <GL/gl.h>
 #include "3ds.h"
 
 #include <sys/stat.h>
@@ -56,7 +57,47 @@ long filelength(int f)
     return(buf.st_size);
 }
 
+void display3DSobj(obj_3ds_ptr pObj3ds)
+{
+    int l_index;
 
+
+    glBindTexture(GL_TEXTURE_2D, pObj3ds->id_texture); // We set the active texture
+
+    glBegin(GL_TRIANGLES); // glBegin and glEnd delimit the vertices that define a primitive (in our case triangles)
+    for (l_index=0;l_index<pObj3ds->polygons_qty;l_index++)
+    {
+        //----------------- FIRST VERTEX -----------------
+        // Texture coordinates of the first vertex
+        glTexCoord2f( pObj3ds->mapcoord[ pObj3ds->polygon[l_index].a ].u,
+                      pObj3ds->mapcoord[ pObj3ds->polygon[l_index].a ].v);
+        // Coordinates of the first vertex
+        glVertex3f( pObj3ds->vertex[ pObj3ds->polygon[l_index].a ].x,
+                    pObj3ds->vertex[ pObj3ds->polygon[l_index].a ].y,
+                    pObj3ds->vertex[ pObj3ds->polygon[l_index].a ].z); //Vertex definition
+
+        //----------------- SECOND VERTEX -----------------
+        // Texture coordinates of the second vertex
+        glTexCoord2f( pObj3ds->mapcoord[ pObj3ds->polygon[l_index].b ].u,
+                      pObj3ds->mapcoord[ pObj3ds->polygon[l_index].b ].v);
+        // Coordinates of the second vertex
+        glVertex3f( pObj3ds->vertex[ pObj3ds->polygon[l_index].b ].x,
+                    pObj3ds->vertex[ pObj3ds->polygon[l_index].b ].y,
+                    pObj3ds->vertex[ pObj3ds->polygon[l_index].b ].z);
+
+        //----------------- THIRD VERTEX -----------------
+        // Texture coordinates of the third vertex
+        glTexCoord2f( pObj3ds->mapcoord[ pObj3ds->polygon[l_index].c ].u,
+                      pObj3ds->mapcoord[ pObj3ds->polygon[l_index].c ].v);
+        // Coordinates of the Third vertex
+        glVertex3f( pObj3ds->vertex[ pObj3ds->polygon[l_index].c ].x,
+                    pObj3ds->vertex[ pObj3ds->polygon[l_index].c ].y,
+                    pObj3ds->vertex[ pObj3ds->polygon[l_index].c ].z);
+    }
+    glEnd();
+
+    glFlush(); // This force the execution of OpenGL commands
+}
 
 char Load3DS (obj_3ds_ptr pObj3ds, char *p_filename)
 {
