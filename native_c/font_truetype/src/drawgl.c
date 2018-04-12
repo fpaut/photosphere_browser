@@ -95,6 +95,41 @@ static PFNGLVERTEXATTRIBPOINTERPROC glVertexAttribPointer;
 #endif
 
 
+void gl_printf(float x, float y, const char *fmt, ...)
+{
+	va_list ap;
+	int buf_size;
+	char *buf, tmp;
+
+	va_start(ap, fmt);
+	buf_size = vsnprintf(&tmp, 0, fmt, ap);
+	va_end(ap);
+
+	if(buf_size == -1) {
+		buf_size = 512;
+	}
+
+	buf = alloca(buf_size + 1);
+	va_start(ap, fmt);
+	vsnprintf(buf, buf_size + 1, fmt, ap);
+	va_end(ap);
+
+ 	glPushMatrix();
+        {
+            static float rot = 0;
+//            rot +=1;  printf("rot = %f\n", rot);
+//            glRotatef(rot, 0, 1, 0);
+//            glRotatef(90, 0, 1, 0);
+
+            glTranslatef(x, y, 0);
+           /* XXX call dtx_string to draw utf-8 text.
+             * any transformations and the current color apply
+             */
+            dtx_string(buf);
+        }
+	glPopMatrix();
+}
+
 void dtx_target_opengl(void)
 {
 	dtx_gl_init();

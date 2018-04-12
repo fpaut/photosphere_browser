@@ -9,6 +9,6 @@
 
 extern void pyramid(void);
 extern void quad(void);
-extern void drawaxes(void);
+extern void drawaxes(float size);
 
 #endif // _MODELS_H

@@ -47,7 +47,7 @@ typedef struct Camera
  
 MyWin        *Win;
 // Camera       MyCam = {-30.0, 0.0, -10.0, 0.0, -0.0, 0.0, 0.0, 1.0, 0.0};
-Camera       MyCam = {-0.0, -0.0, 80.0, 0.0, -0.0, 0.0, 0.0, 1.0, 0.0};
+Camera       MyCam = {-0.0, -0.0, 1000.0, 0.0, -0.0, 0.0, 0.0, 1.0, 0.0};
 float       CameraStep = 5.0;
 
 
@@ -61,44 +61,6 @@ struct dtx_font *font;
 //----------------------------------------------------------------------------
 
  
-void gl_printf(float x, float y, const char *fmt, ...)
-{
-	va_list ap;
-	int buf_size;
-	char *buf, tmp;
-
-	va_start(ap, fmt);
-	buf_size = vsnprintf(&tmp, 0, fmt, ap);
-	va_end(ap);
-
-	if(buf_size == -1) {
-		buf_size = 512;
-	}
-
-	buf = alloca(buf_size + 1);
-	va_start(ap, fmt);
-	vsnprintf(buf, buf_size + 1, fmt, ap);
-	va_end(ap);
-
- 	glPushMatrix();
-        {
-            static float rot = 0;
-            
-//            rot +=1;  printf("rot = %f\n", rot);
-//            glRotatef(rot, 1, 0, 0);
-//            glRotatef(90, 0, 1, 0);
-
-            glTranslatef(x, y, 0);
-            glColor3f(1, 1, 1);
-            /* XXX call dtx_string to draw utf-8 text.
-             * any transformations and the current color apply
-             */
-            dtx_string(buf);
-        }
-	glPopMatrix();
-}
-
-
 
 void displayCB(void)
 {
@@ -112,16 +74,29 @@ void displayCB(void)
  	glMatrixMode(GL_MODELVIEW);
 	glLoadIdentity();
 
-      drawaxes();
-      gl_printf(0, 10, "TEST2");
-	glPushMatrix();
-	glTranslatef(0, -10, 0);
-//	glColor3f(1, 1, 1);
-	/* XXX call dtx_string to draw utf-8 text.
-	 * any transformations and the current color apply
-	 */
-	dtx_string("TEST");
-  	glPopMatrix();
+        drawaxes(100.0);
+       dtx_prepare(font, 32);
+        dtx_use_font(font, 32);
+     glColor3f(1, 0, 0);
+    gl_printf(40, 10, "X");
+    
+    glColor3f(0, 1, 0);
+    gl_printf(-30, 40, "Y");
+    
+    glColor3f(0, 0, 1);
+    gl_printf(5, 5, "Z");
+    
+        dtx_prepare(font, 24);
+        dtx_use_font(font, 24);
+        	glColor3f(1, 1, 1);
+//        gl_printf(0, 10, "TEST2");
+//	glPushMatrix();
+//	glTranslatef(0, -10, 0);
+//	/* XXX call dtx_string to draw utf-8 text.
+//	 * any transformations and the current color apply
+//	 */
+//	dtx_string("TEST");
+//  	glPopMatrix();
  	glXSwapBuffers( Win->dpy, Win->win );
 }
 
@@ -132,6 +107,7 @@ void reshapeCB(int width, int height)
 
     glMatrixMode(GL_PROJECTION);
     glLoadIdentity();
+    glViewport(0,0, width, height);
 
     gluPerspective(45.0, width/height, 0.1, 1000.0);
 
@@ -197,7 +173,7 @@ static void mouseCB	( int x/* pointer x coordinates in event window */
         }
     }
         // Update view
-        reshapeCB(Win->width, Win->height);
+//        reshapeCB(Win->width, Win->height);
 }
 //----------------------------------------------------------------------------
 
@@ -265,7 +241,7 @@ int main( int argc, char *argv[] )
 //  }
 
   	/* XXX dtx_open_font opens a font file and returns a pointer to dtx_font */
-	if(!(font = dtx_open_font("Sweet Hipster.ttf", 24))) {
+	if(!(font = dtx_open_font("serif.ttf", 32))) {
 		fprintf(stderr, "failed to open font\n");
 		return 1;
 	}
@@ -273,7 +249,7 @@ int main( int argc, char *argv[] )
 	 * if you want to use a different font size, you must first call:
 	 * dtx_prepare(font, size) once.
 	 */
-	dtx_use_font(font, 24);
+	dtx_use_font(font, 32);
 
   WinGL_mainLoop(Win);
  

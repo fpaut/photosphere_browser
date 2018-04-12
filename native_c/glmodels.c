@@ -103,52 +103,46 @@ void pyramid(void)
 	   glEnd();   // Done drawing the pyramid
 }
 
-void drawaxes(void)
+void drawaxes(float size)
 {
     // X
     glColor3ub(255, 0, 0);
     glBegin(GL_LINE_STRIP);
     glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(1.0, 0.0, 0.0);
-    glVertex3f(0.75, 0.25, 0.0);
-    glVertex3f(0.75, -0.25, 0.0);
-    glVertex3f(1.0, 0.0, 0.0);
-    glVertex3f(0.75, 0.0, 0.25);
-    glVertex3f(0.75, 0.0, -0.25);
-    glVertex3f(1.0, 0.0, 0.0);
+    glVertex3f(size, 0.0, 0.0);
+    glVertex3f(size * 0.75, size * 0.25, 0.0);
+    glVertex3f(size * 0.75, size * -0.25, 0.0);
+    glVertex3f(size, 0.0, 0.0);
+    glVertex3f(0.75 * size, 0.0, 0.25 * size);
+    glVertex3f(0.75 * size, 0.0, -0.25 * size);
+    glVertex3f( size, 0.0, 0.0);
     glEnd();
     // Y
     glColor3ub(0, 255, 0);
     glBegin(GL_LINE_STRIP);
     glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(0.0, 1.0, 0.0);
-    glVertex3f(0.0, 0.75, 0.25);
-    glVertex3f(0.0, 0.75, -0.25);
-    glVertex3f(0.0, 1.0, 0.0);
-    glVertex3f(0.25, 0.75, 0.0);
-    glVertex3f(-0.25, 0.75, 0.0);
-    glVertex3f(0.0, 1.0, 0.0);
+    glVertex3f(0.0, size, 0.0);
+    glVertex3f(0.0, 0.75 * size,0.25 * size);
+    glVertex3f(0.0, 0.75 * size,-0.25 * size);
+    glVertex3f(0.0, size, 0.0);
+    glVertex3f(0.25 * size, 0.75 * size,0.0);
+    glVertex3f(-0.25 * size, 0.75 * size,0.0);
+    glVertex3f(0.0, size, 0.0);
     glEnd();
     // Z
     glColor3ub(0, 0, 255);
     glBegin(GL_LINE_STRIP);
     glVertex3f(0.0, 0.0, 0.0);
-    glVertex3f(0.0, 0.0, 1.0);
-    glVertex3f(0.25, 0.0, 0.75);
-    glVertex3f(-0.25, 0.0, 0.75);
-    glVertex3f(0.0, 0.0, 1.0);
-    glVertex3f(0.0, 0.25, 0.75);
-    glVertex3f(0.0, -0.25, 0.75);
-    glVertex3f(0.0, 0.0, 1.0);
+    glVertex3f(0.0, 0.0, size);
+    glVertex3f(0.25 * size, 0.0, 0.75 * size);
+    glVertex3f(-0.25 * size, 0.0, 0.75 * size);
+    glVertex3f(0.0, 0.0, size);
+    glVertex3f(0.0, 0.25, 0.75 * size);
+    glVertex3f(0.0, -0.25, 0.75 * size);
+    glVertex3f(0.0, 0.0, size);
     glEnd();
 
-//    glColor3ub(255, 255, 0);
-//    glRasterPos3f(1.1, 0.0, 0.0);
-////    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, 'x');
-//    glRasterPos3f(0.0, 1.1, 0.0);
-////    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, 'y');
 //    glRasterPos3f(0.0, 0.0, 1.1);
-////    glutBitmapCharacter(GLUT_BITMAP_HELVETICA_12, 'z');
 }
  
 

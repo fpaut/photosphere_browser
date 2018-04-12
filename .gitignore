@@ -20,3 +20,6 @@ Makefile
 *.cmake
 *.bin
 CMakeFiles/
+/java/Java/nbproject/private/
+/java/Java/build/
+/java/Java/dist/

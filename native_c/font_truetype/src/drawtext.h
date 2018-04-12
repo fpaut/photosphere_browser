@@ -201,7 +201,8 @@ void dtx_string(const char *str);
 void dtx_substring(const char *str, int start, int end);
 
 void dtx_printf(const char *fmt, ...);
-
+void gl_printf(float x, float y, const char *fmt, ...);
+        
 /* render any pending glyphs (see dtx_draw_buffering) */
 void dtx_flush(void);
 
