@@ -172,8 +172,8 @@ static void mouseCB	( int x/* pointer x coordinates in event window */
             }  
         }
     }
-        // Update view
-        reshapeCB(Win->width, Win->height);
+    // Update view
+    reshapeCB(Win->width, Win->height);
 }
 //----------------------------------------------------------------------------
 
